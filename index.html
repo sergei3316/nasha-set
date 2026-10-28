@@ -61,6 +61,16 @@ nav button span{display:block;font-size:22px}nav button.on{color:var(--accent);f
 #login p{color:var(--muted);margin:6px 0 16px;font-size:14px}
 #login input{margin-bottom:10px;text-align:center}
 .c{text-align:center}.muted{color:var(--muted);font-size:13px}
+.col{display:flex;flex-direction:column;min-width:0}.me .col{align-items:flex-end}.bub{cursor:pointer}
+.chips{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:1px 8px;font-size:14px;color:var(--text);cursor:pointer}
+.chip.mine{border-color:var(--accent);background:var(--bg)}
+.pick{display:flex;gap:2px;background:var(--card);border-radius:22px;padding:4px 6px;box-shadow:var(--shadow);margin-top:4px}
+.pick button{background:none;border:0;font-size:24px;padding:2px 4px;cursor:pointer}
+.emo{display:none;flex-wrap:wrap;gap:2px;padding:8px;background:var(--card);border-top:1px solid var(--line);max-height:170px;overflow-y:auto}
+.emo.on{display:flex}.emo button{font-size:24px;background:none;border:0;padding:4px 6px;cursor:pointer}
+nav button{position:relative}
+.bd{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:#ff3b30;color:#fff;font-size:11px;font-style:normal;display:none;align-items:center;justify-content:center;padding:0 5px;font-weight:700}
 </style>
 </head>
 <body>
@@ -79,8 +89,9 @@ nav button span{display:block;font-size:22px}nav button.on{color:var(--accent);f
     <div class="card">
       <textarea id="ptxt" rows="2" placeholder="Что нового? Поделитесь моментом…"></textarea>
       <img id="prev" alt="">
+      <div class="emo" id="emoP"></div>
       <div class="cin" style="justify-content:space-between">
-        <button class="ib ghost" id="pph" title="Фото">📷</button>
+        <span><button class="ib ghost" id="pph" title="Фото">📷</button><button class="ib ghost" id="pem" title="Смайлики">😊</button></span>
         <input type="file" id="pfile" accept="image/*" hidden>
         <button class="btn" id="ppub">Опубликовать</button>
       </div>
@@ -89,7 +100,9 @@ nav button span{display:block;font-size:22px}nav button.on{color:var(--accent);f
   </section>
   <section id="chatS">
     <div id="msgs"></div>
+    <div class="emo" id="emoC"></div>
     <div class="bar">
+      <button class="ib ghost" id="mem" title="Смайлики">😊</button>
       <textarea id="mt" rows="1" placeholder="Сообщение…"></textarea>
       <button class="ib" id="msend">➤</button>
     </div>
@@ -104,14 +117,15 @@ nav button span{display:block;font-size:22px}nav button.on{color:var(--accent);f
       <button class="btn" style="background:none;color:var(--accent)" id="pfb">📷 Загрузить фото</button>
       <input type="file" id="pavf" accept="image/*" hidden>
       <button class="btn w" id="psave">Сохранить профиль</button>
+      <button class="btn w" id="ntf" style="background:var(--bg);color:var(--accent)">🔔 Включить уведомления</button>
       <button class="btn w" id="inv" style="background:var(--bg);color:var(--accent)">💌 Ссылка-приглашение для неё</button>
       <p class="muted" style="margin-top:14px"><a href="#" id="out" style="color:var(--muted)">Выйти</a></p>
     </div>
   </section>
 </main>
 <nav>
-  <button class="on" data-t="feedS"><span>🏠</span>Лента</button>
-  <button data-t="chatS"><span>💬</span>Чат</button>
+  <button class="on" data-t="feedS"><span>🏠</span>Лента<i class="bd" id="bdF"></i></button>
+  <button data-t="chatS"><span>💬</span>Чат<i class="bd" id="bdC"></i></button>
   <button data-t="profS"><span>👤</span>Профиль</button>
 </nav>
 
@@ -135,7 +149,7 @@ const EM=["🦊","🐱","🐼","🦄","🐻","🐰","🐨","🦋","🌸","🌙",
 const $=id=>document.getElementById(id);
 const grad=h=>`linear-gradient(135deg,hsl(${h},85%,62%),hsl(${(h+35)%360},85%,60%))`;
 const slug=s=>s.toLowerCase().replace(/[^a-zа-я0-9]/gi,"").slice(0,24)||"user";
-let base,me,room,profiles={},posts={},chat={},online={},pdraft={},pphoto=null,db;
+let base,me,room,profiles={},posts={},chat={},online={},pdraft={},pphoto=null,db,openMsg=null,seenC=+localStorage.getItem("ns_sc")||0,seenF=+localStorage.getItem("ns_sf")||0,knownC=null,knownP=null,tab="feedS";
 
 function av(p,cls,on){
   const d=document.createElement("div");d.className="av "+(cls||"")+(on?" on":"");
@@ -172,13 +186,14 @@ function enter(code,name){
   localStorage.setItem("ns",JSON.stringify({code,name}));
   room=slug(code)+"_"+code.length;me=slug(name);
   $("login").style.display="none";
+  if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
   firebase.initializeApp(CFG);db=firebase.database();
   base=db.ref("rooms/"+room);
   base.child("profiles").on("value",s=>{profiles=s.val()||{};
     if(!profiles[me]){base.child("profiles/"+me).set({name,emoji:EM[0],hue:HU[0],bio:""})}
     pdraft=Object.assign({},profiles[me]||{name,emoji:EM[0],hue:HU[0]});drawFaces();drawProf();drawFeed();drawChat()});
-  base.child("posts").limitToLast(60).on("value",s=>{posts=s.val()||{};drawFeed()});
-  base.child("chat").limitToLast(200).on("value",s=>{chat=s.val()||{};drawChat()});
+  base.child("posts").limitToLast(60).on("value",s=>{posts=s.val()||{};notePosts();drawFeed();badges()});
+  base.child("chat").limitToLast(200).on("value",s=>{chat=s.val()||{};noteChat();drawChat();badges()});
   base.child("presence").on("value",s=>{online=s.val()||{};drawFaces()});
   const pr=base.child("presence/"+me);
   db.ref(".info/connected").on("value",s=>{if(s.val()){pr.onDisconnect().set(false);pr.set(true)}});
@@ -209,7 +224,7 @@ $("out").onclick=e=>{e.preventDefault();localStorage.removeItem("ns");location.r
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav button,section").forEach(x=>x.classList.remove("on"));
   b.classList.add("on");$(b.dataset.t).classList.add("on");
-  if(b.dataset.t==="chatS"){const m=$("msgs");m.scrollTop=m.scrollHeight}
+  tab=b.dataset.t;if(tab==="chatS"){const m=$("msgs");m.scrollTop=m.scrollHeight}badges();
 });
 
 function drawFaces(){
@@ -258,18 +273,27 @@ function drawFeed(){
 }
 
 /* чат */
+const RX=["❤️","😂","😮","😢","👍","🔥"];
+function react(id,e){const cur=((chat[id]||{}).reactions||{})[me];base.child(`chat/${id}/reactions/${me}`).set(cur===e?null:e)}
 function drawChat(){
-  const el=$("msgs"),stick=el.scrollHeight-el.scrollTop-el.clientHeight<120;
+  const el=$("msgs"),st=el.scrollTop,stick=el.scrollHeight-el.scrollTop-el.clientHeight<120;
   el.innerHTML="";
   const ids=Object.keys(chat).sort((a,b)=>chat[a].t-chat[b].t);
   if(!ids.length){el.innerHTML='<div class="empty"><b>💌</b>Напишите первое сообщение!</div>';return}
   ids.forEach(id=>{
     const m=chat[id],r=document.createElement("div");r.className="row"+(m.uid===me?" me":"");
     if(m.uid!==me)r.append(av(profiles[m.uid],"sm"));
+    const col=document.createElement("div");col.className="col";
     const b=document.createElement("div");b.className="bub";b.textContent=m.text;
-    const t=document.createElement("time");t.textContent=hm(m.t);b.append(t);r.append(b);el.append(r);
+    const t=document.createElement("time");t.textContent=hm(m.t);b.append(t);
+    b.onclick=()=>{openMsg=openMsg===id?null:id;drawChat()};
+    col.append(b);
+    const rx=m.reactions||{},cnt={};Object.values(rx).forEach(e=>cnt[e]=(cnt[e]||0)+1);
+    if(Object.keys(cnt).length){const cs=document.createElement("div");cs.className="chips";Object.keys(cnt).forEach(e=>{const c=document.createElement("button");c.className="chip"+(rx[me]===e?" mine":"");c.textContent=e+(cnt[e]>1?" "+cnt[e]:"");c.onclick=()=>react(id,e);cs.append(c)});col.append(cs)}
+    if(openMsg===id){const pk=document.createElement("div");pk.className="pick";RX.forEach(e=>{const c=document.createElement("button");c.textContent=e;c.onclick=()=>{openMsg=null;react(id,e)};pk.append(c)});col.append(pk)}
+    r.append(col);el.append(r);
   });
-  if(stick||!el._i){el.scrollTop=el.scrollHeight;el._i=1}
+  if(stick||!el._i){el.scrollTop=el.scrollHeight;el._i=1}else el.scrollTop=st;
 }
 function send(){
   const v=$("mt").value.trim();if(!v)return;
@@ -279,6 +303,53 @@ function send(){
 $("msend").onclick=send;
 $("mt").oninput=e=>{e.target.style.height="auto";e.target.style.height=Math.min(e.target.scrollHeight,110)+"px"};
 $("mt").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey&&matchMedia("(hover:hover)").matches){e.preventDefault();send()}};
+
+/* смайлики */
+const EMO=["😀","😁","😂","🤣","😊","😍","🥰","😘","😉","😎","🤗","🤔","😏","😴","😢","😭","😡","🥺","😱","🙄","😅","😇","🤩","😋","❤️","🧡","💛","💚","💙","💜","💖","💗","💞","💕","💘","💋","🔥","✨","⭐","🌹","🌸","🎉","🎁","☕","🍕","🍓","🍫","🍷","👍","👏","🙏","💪","🙌","👋","🤝","😻","🐱","🐶","🦊","🌙","☀️","🌈","❄️","💤","🥳","😌"];
+function panel(id,target,btn){
+  const p=$(id);
+  EMO.forEach(e=>{const b=document.createElement("button");b.type="button";b.textContent=e;
+    b.onclick=()=>{const t=$(target),a=t.selectionStart==null?t.value.length:t.selectionStart,z=t.selectionEnd==null?a:t.selectionEnd;
+      t.value=t.value.slice(0,a)+e+t.value.slice(z);const c=a+e.length;try{t.setSelectionRange(c,c)}catch(x){}t.dispatchEvent(new Event("input"))};
+    p.append(b)});
+  $(btn).onclick=()=>p.classList.toggle("on");
+}
+panel("emoC","mt","mem");panel("emoP","ptxt","pem");
+
+/* уведомления */
+function ping(){try{const a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.setValueAtTime(.15,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.4);o.start();o.stop(a.currentTime+.4)}catch(e){}try{navigator.vibrate&&navigator.vibrate(120)}catch(e){}}
+async function sysNote(title,body){
+  if(!document.hidden||!("Notification" in window)||Notification.permission!=="granted")return;
+  try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();
+    if(reg)reg.showNotification(title,{body,tag:"ns"});else new Notification(title,{body})}
+  catch(e){try{new Notification(title,{body})}catch(x){}}
+}
+function alertNew(title,body,t){if(document.hidden||tab!==t){ping();sysNote(title,body)}}
+function noteChat(){
+  const ids=Object.keys(chat);
+  if(knownC)ids.filter(i=>!knownC.has(i)&&chat[i].uid!==me).forEach(i=>alertNew("💬 "+nm(chat[i].uid),chat[i].text,"chatS"));
+  knownC=new Set(ids);
+}
+function notePosts(){
+  const ids=Object.keys(posts);
+  if(knownP)ids.filter(i=>!knownP.has(i)&&posts[i].uid!==me).forEach(i=>alertNew("📸 "+nm(posts[i].uid),posts[i].text||"Новое фото","feedS"));
+  knownP=new Set(ids);
+}
+function badges(){
+  const lastC=Math.max(0,...Object.values(chat).map(m=>m.t)),lastF=Math.max(0,...Object.values(posts).map(m=>m.t));
+  if(!document.hidden&&tab==="chatS"&&lastC>seenC){seenC=lastC;localStorage.setItem("ns_sc",seenC)}
+  if(!document.hidden&&tab==="feedS"&&lastF>seenF){seenF=lastF;localStorage.setItem("ns_sf",seenF)}
+  const uc=Object.values(chat).filter(m=>m.uid!==me&&m.t>seenC).length,uf=Object.values(posts).filter(m=>m.uid!==me&&m.t>seenF).length;
+  const set=(id,n)=>{const e=$(id);e.textContent=n>9?"9+":n;e.style.display=n?"flex":"none"};
+  set("bdC",uc);set("bdF",uf);
+  document.title=(uc+uf?"("+(uc+uf)+") ":"")+"Наша сеть";
+}
+document.addEventListener("visibilitychange",badges);
+$("ntf").onclick=async()=>{
+  if(!("Notification" in window)){alert("Этот браузер не поддерживает системные уведомления. Красные значки и звук всё равно работают.");return}
+  const r=await Notification.requestPermission();
+  alert(r==="granted"?"Уведомления включены 🔔 Они приходят, пока сайт открыт в браузере, в том числе в фоне.":"Уведомления не разрешены. Их можно включить в настройках сайта в браузере.");
+};
 
 /* профиль */
 function drawProf(){
