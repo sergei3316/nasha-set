@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Наша сеть</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ff4f81">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#fff5f7;--card:#fff;--text:#2a1f2d;--muted:#8b7a8f;--accent:#ff4f81;--grad:linear-gradient(135deg,#ff4f81,#ff8a5c);--theirs:#fff;--line:#f3dfe6;--shadow:0 4px 18px rgba(255,79,129,.15);color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#1a1320;--card:#271c2f;--text:#f6eaf5;--muted:#a692ab;--theirs:#2d2136;--line:#3b2c45;--shadow:0 4px 18px rgba(0,0,0,.4);color-scheme:dark}}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
+header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--grad);color:#fff;box-shadow:var(--shadow)}
+header h1{font-size:20px;flex:1}
+header small{font-size:12px;opacity:.9;display:block;font-weight:400}
+.faces{display:flex}.faces .av{margin-left:-8px;border:2px solid #fff}
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:21px;background-size:cover;background-position:center;flex:none;color:#fff;position:relative}
+.av.sm{width:32px;height:32px;font-size:17px}.av.big{width:110px;height:110px;font-size:56px;margin:0 auto 12px;border:4px solid var(--card);box-shadow:var(--shadow)}
+.av.on::after{content:"";position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:#2ecc71;border:2px solid var(--card)}
+main{flex:1;position:relative;overflow:hidden}
+section{position:absolute;inset:0;overflow-y:auto;padding:12px;display:none}
+section.on{display:block}
+#chatS.on{display:flex;flex-direction:column;padding:0}
+.card{background:var(--card);border-radius:22px;padding:14px;box-shadow:var(--shadow);margin-bottom:14px}
+.ph{display:flex;align-items:center;gap:10px;margin-bottom:10px}.ph b{display:block}.ph small{color:var(--muted);font-size:12px}
+.post img{width:100%;border-radius:16px;margin:8px 0;display:block}
+.post p{white-space:pre-wrap;word-break:break-word;line-height:1.45}
+.acts{display:flex;gap:6px;margin-top:6px}
+.acts button{background:var(--bg);border:0;border-radius:20px;padding:7px 14px;font-size:15px;color:var(--text);cursor:pointer}
+.acts button.liked{background:var(--grad);color:#fff}
+.pop{animation:pop .35s}@keyframes pop{50%{transform:scale(1.35)}}
+.cm{display:flex;gap:8px;margin-top:10px;align-items:flex-start}
+.cm div.t{background:var(--bg);border-radius:14px;padding:6px 12px;font-size:14px;word-break:break-word}.cm b{font-size:12px;display:block}
+.cin{display:flex;gap:6px;margin-top:10px}
+input[type=text],textarea{flex:1;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:20px;padding:10px 16px;font:inherit;font-size:16px;outline:none;resize:none}
+input:focus,textarea:focus{border-color:var(--accent)}
+.btn{border:0;border-radius:18px;background:var(--grad);color:#fff;font-size:16px;font-weight:600;padding:11px 18px;cursor:pointer}
+.btn.w{width:100%;padding:14px;margin-top:8px}
+.ib{width:42px;height:42px;border-radius:50%;border:0;background:var(--grad);color:#fff;font-size:18px;cursor:pointer;flex:none}
+.ghost{background:none;color:var(--accent);font-size:22px}
+#prev{display:none;width:100%;border-radius:14px;margin-top:8px}
+#msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.row{display:flex;gap:8px;align-items:flex-end;max-width:88%}.row.me{align-self:flex-end;flex-direction:row-reverse}
+.bub{padding:9px 13px;border-radius:20px 20px 20px 6px;background:var(--theirs);box-shadow:var(--shadow);white-space:pre-wrap;word-break:break-word;line-height:1.4}
+.me .bub{background:var(--grad);color:#fff;border-radius:20px 20px 6px 20px}
+.bub time{display:block;font-size:11px;opacity:.65;text-align:right;margin-top:2px}
+.bar{display:flex;gap:8px;padding:10px 12px;background:var(--card);border-top:1px solid var(--line);align-items:flex-end}
+.empty{text-align:center;color:var(--muted);padding:40px 20px}.empty b{font-size:46px;display:block}
+nav{display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;background:none;border:0;padding:10px 0 8px;font-size:12px;color:var(--muted);cursor:pointer}
+nav button span{display:block;font-size:22px}nav button.on{color:var(--accent);font-weight:700}
+.grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
+.grid button{font-size:25px;width:42px;height:42px;border-radius:13px;border:2px solid transparent;background:var(--bg);cursor:pointer}
+.grid button.sel{border-color:var(--accent)}
+.dots button{width:30px;height:30px;border-radius:50%;border:3px solid var(--card)}.dots button.sel{outline:2px solid var(--accent)}
+#login{position:fixed;inset:0;z-index:9;background:var(--grad);display:flex;align-items:center;justify-content:center;padding:20px}
+#login .card{width:100%;max-width:380px;text-align:center;padding:28px}
+#login h2{font-size:28px}#login .heart{font-size:54px}
+#login p{color:var(--muted);margin:6px 0 16px;font-size:14px}
+#login input{margin-bottom:10px;text-align:center}
+.c{text-align:center}.muted{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div id="login"><div class="card">
+  <div class="heart">💞</div><h2>Наша сеть</h2>
+  <p>Только для нас двоих. Придумайте общий секретный код — по нему вы найдёте друг друга.</p>
+  <textarea id="lcfg" rows="3" placeholder="Вставьте сюда настройки Firebase (один раз)" style="display:none;margin-bottom:10px;border-radius:16px"></textarea>
+  <input type="text" id="lcode" placeholder="Секретный код сети" autocapitalize="off">
+  <input type="text" id="lname" placeholder="Ваше имя" maxlength="20">
+  <button class="btn w" id="lgo">Войти</button>
+</div></div>
+
+<header><div style="font-size:26px">💞</div><h1>Наша сеть<small id="sub"></small></h1><div class="faces" id="faces"></div></header>
+<main>
+  <section id="feedS" class="on">
+    <div class="card">
+      <textarea id="ptxt" rows="2" placeholder="Что нового? Поделитесь моментом…"></textarea>
+      <img id="prev" alt="">
+      <div class="cin" style="justify-content:space-between">
+        <button class="ib ghost" id="pph" title="Фото">📷</button>
+        <input type="file" id="pfile" accept="image/*" hidden>
+        <button class="btn" id="ppub">Опубликовать</button>
+      </div>
+    </div>
+    <div id="feed"></div>
+  </section>
+  <section id="chatS">
+    <div id="msgs"></div>
+    <div class="bar">
+      <textarea id="mt" rows="1" placeholder="Сообщение…"></textarea>
+      <button class="ib" id="msend">➤</button>
+    </div>
+  </section>
+  <section id="profS">
+    <div class="card c">
+      <div class="av big" id="pav"></div>
+      <input type="text" id="pname" maxlength="20" placeholder="Имя" style="text-align:center;margin-bottom:8px">
+      <input type="text" id="pbio" maxlength="60" placeholder="Статус, например: скучаю 💗" style="text-align:center">
+      <div class="grid" id="peg"></div>
+      <div class="grid dots" id="pcg"></div>
+      <button class="btn" style="background:none;color:var(--accent)" id="pfb">📷 Загрузить фото</button>
+      <input type="file" id="pavf" accept="image/*" hidden>
+      <button class="btn w" id="psave">Сохранить профиль</button>
+      <button class="btn w" id="inv" style="background:var(--bg);color:var(--accent)">💌 Ссылка-приглашение для неё</button>
+      <p class="muted" style="margin-top:14px"><a href="#" id="out" style="color:var(--muted)">Выйти</a></p>
+    </div>
+  </section>
+</main>
+<nav>
+  <button class="on" data-t="feedS"><span>🏠</span>Лента</button>
+  <button data-t="chatS"><span>💬</span>Чат</button>
+  <button data-t="profS"><span>👤</span>Профиль</button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ВСТАВЬТЕ СЮДА СВОИ ДАННЫЕ ИЗ FIREBASE (см. инструкцию) */
+let CFG={
+  apiKey:"ВАШ_apiKey",
+  authDomain:"ВАШ_ПРОЕКТ.firebaseapp.com",
+  databaseURL:"https://ВАШ_ПРОЕКТ-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"ВАШ_ПРОЕКТ"
+};
+
+try{
+  const h=location.hash.match(/#c=(.+)/);
+  if(h){const o=JSON.parse(decodeURIComponent(escape(atob(h[1]))));localStorage.setItem("ns_cfg",JSON.stringify(o.cfg));localStorage.setItem("ns_pre",o.code||"");history.replaceState(null,"",location.pathname)}
+  const sc=localStorage.getItem("ns_cfg");if(sc)CFG=JSON.parse(sc);
+}catch(e){}
+const EM=["🦊","🐱","🐼","🦄","🐻","🐰","🐨","🦋","🌸","🌙","⭐","🔥","🍓","🍀","🐧","🦉"],HU=[340,10,35,150,190,230,270,310];
+const $=id=>document.getElementById(id);
+const grad=h=>`linear-gradient(135deg,hsl(${h},85%,62%),hsl(${(h+35)%360},85%,60%))`;
+const slug=s=>s.toLowerCase().replace(/[^a-zа-я0-9]/gi,"").slice(0,24)||"user";
+let base,me,room,profiles={},posts={},chat={},online={},pdraft={},pphoto=null,db;
+
+function av(p,cls,on){
+  const d=document.createElement("div");d.className="av "+(cls||"")+(on?" on":"");
+  p=p||{emoji:"👤",hue:260};
+  if(p.photo)d.style.backgroundImage=`url(${p.photo})`;else{d.style.backgroundImage=grad(p.hue||340);d.textContent=p.emoji||"👤"}
+  return d;
+}
+const nm=id=>(profiles[id]&&profiles[id].name)||"Кто-то";
+function ago(t){
+  const s=(Date.now()-t)/1000;
+  if(s<60)return"только что";if(s<3600)return Math.floor(s/60)+" мин назад";
+  if(s<86400)return Math.floor(s/3600)+" ч назад";
+  return new Date(t).toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
+}
+const hm=t=>new Date(t).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+function resize(file,size,cb){
+  const img=new Image();img.onload=()=>{
+    const k=Math.min(1,size/Math.max(img.width,img.height)),c=document.createElement("canvas");
+    c.width=img.width*k;c.height=img.height*k;c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    cb(c.toDataURL("image/jpeg",.72));
+  };img.src=URL.createObjectURL(file);
+}
+function squareFace(file,cb){
+  const img=new Image();img.onload=()=>{
+    const s=160,c=document.createElement("canvas");c.width=c.height=s;
+    const m=Math.min(img.width,img.height);
+    c.getContext("2d").drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);
+    cb(c.toDataURL("image/jpeg",.8));
+  };img.src=URL.createObjectURL(file);
+}
+
+/* вход */
+function enter(code,name){
+  localStorage.setItem("ns",JSON.stringify({code,name}));
+  room=slug(code)+"_"+code.length;me=slug(name);
+  $("login").style.display="none";
+  firebase.initializeApp(CFG);db=firebase.database();
+  base=db.ref("rooms/"+room);
+  base.child("profiles").on("value",s=>{profiles=s.val()||{};
+    if(!profiles[me]){base.child("profiles/"+me).set({name,emoji:EM[0],hue:HU[0],bio:""})}
+    pdraft=Object.assign({},profiles[me]||{name,emoji:EM[0],hue:HU[0]});drawFaces();drawProf();drawFeed();drawChat()});
+  base.child("posts").limitToLast(60).on("value",s=>{posts=s.val()||{};drawFeed()});
+  base.child("chat").limitToLast(200).on("value",s=>{chat=s.val()||{};drawChat()});
+  base.child("presence").on("value",s=>{online=s.val()||{};drawFaces()});
+  const pr=base.child("presence/"+me);
+  db.ref(".info/connected").on("value",s=>{if(s.val()){pr.onDisconnect().set(false);pr.set(true)}});
+}
+$("lgo").onclick=()=>{
+  const c=$("lcode").value.trim(),n=$("lname").value.trim();
+  if(c.length<4||!n){alert("Введите код (от 4 символов) и имя");return}
+  if(CFG.apiKey.startsWith("ВАШ")){
+    const t=$("lcfg").value,o={};
+    t.replace(/(apiKey|authDomain|databaseURL|projectId)\s*[:=]\s*["']([^"']+)["']/g,(m,k,v)=>{o[k]=v});
+    if(!o.apiKey||!o.projectId){alert("Не вижу настроек Firebase. Вставьте весь блок firebaseConfig");return}
+    if(!o.databaseURL)o.databaseURL="https://"+o.projectId+"-default-rtdb.firebaseio.com";
+    CFG=o;localStorage.setItem("ns_cfg",JSON.stringify(o));
+  }
+  enter(c,n);
+};
+if(CFG.apiKey.startsWith("ВАШ")){$("lcfg").style.display="block"}
+$("lcode").value=localStorage.getItem("ns_pre")||"";
+try{const s=JSON.parse(localStorage.getItem("ns")||"null");if(s&&!CFG.apiKey.startsWith("ВАШ"))enter(s.code,s.name)}catch(e){}
+$("inv").onclick=async()=>{
+  const s=JSON.parse(localStorage.getItem("ns")||"{}");
+  const l=location.origin+location.pathname+"#c="+btoa(unescape(encodeURIComponent(JSON.stringify({cfg:CFG,code:s.code}))));
+  try{await navigator.clipboard.writeText(l);alert("Ссылка скопирована. Отправьте её ей в мессенджере 💗")}catch(e){prompt("Скопируйте ссылку:",l)}
+};
+$("out").onclick=e=>{e.preventDefault();localStorage.removeItem("ns");location.reload()};
+
+/* вкладки */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button,section").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");$(b.dataset.t).classList.add("on");
+  if(b.dataset.t==="chatS"){const m=$("msgs");m.scrollTop=m.scrollHeight}
+});
+
+function drawFaces(){
+  const f=$("faces");f.innerHTML="";
+  Object.keys(profiles).slice(0,2).forEach(i=>f.append(av(profiles[i],"",online[i])));
+  $("sub").textContent=Object.values(profiles).map(p=>p.name).join(" 💗 ");
+}
+
+/* лента */
+$("pph").onclick=()=>$("pfile").click();
+$("pfile").onchange=e=>{const f=e.target.files[0];if(f)resize(f,800,d=>{pphoto=d;$("prev").src=d;$("prev").style.display="block"})};
+$("ppub").onclick=async()=>{
+  const text=$("ptxt").value.trim();if(!text&&!pphoto)return;
+  await base.child("posts").push({uid:me,text,photo:pphoto||null,t:Date.now()});
+  $("ptxt").value="";pphoto=null;$("prev").style.display="none";$("pfile").value="";
+};
+function drawFeed(){
+  const el=$("feed");
+  if(el.contains(document.activeElement)&&document.activeElement.tagName==="INPUT")return;
+  el.innerHTML="";
+  const ids=Object.keys(posts).sort((a,b)=>posts[b].t-posts[a].t);
+  if(!ids.length){el.innerHTML='<div class="empty"><b>📸</b>Лента пока пуста.<br>Опубликуйте первое фото или мысль!</div>';return}
+  ids.forEach(id=>{
+    const p=posts[id],c=document.createElement("div");c.className="card post";
+    const h=document.createElement("div");h.className="ph";h.append(av(profiles[p.uid],"",online[p.uid]));
+    const w=document.createElement("div");w.innerHTML="<b></b><small></small>";w.children[0].textContent=nm(p.uid);w.children[1].textContent=ago(p.t);h.append(w);c.append(h);
+    if(p.text){const t=document.createElement("p");t.textContent=p.text;c.append(t)}
+    if(p.photo){const i=document.createElement("img");i.src=p.photo;c.append(i)}
+    const likes=p.likes||{},liked=!!likes[me],cms=p.comments||{};
+    const a=document.createElement("div");a.className="acts";
+    const lb=document.createElement("button");lb.textContent=(liked?"❤️ ":"🤍 ")+Object.keys(likes).length;if(liked)lb.className="liked pop";
+    lb.onclick=()=>base.child(`posts/${id}/likes/${me}`).set(liked?null:true);a.append(lb);
+    if(p.uid===me){const d=document.createElement("button");d.textContent="🗑";d.onclick=()=>confirm("Удалить пост?")&&base.child("posts/"+id).remove();a.append(d)}
+    c.append(a);
+    Object.keys(cms).sort((x,y)=>cms[x].t-cms[y].t).forEach(k=>{
+      const m=cms[k],r=document.createElement("div");r.className="cm";r.append(av(profiles[m.uid],"sm"));
+      const t=document.createElement("div");t.className="t";t.innerHTML="<b></b><span></span>";t.children[0].textContent=nm(m.uid);t.children[1].textContent=m.text;r.append(t);c.append(r);
+    });
+    const ci=document.createElement("div");ci.className="cin";
+    const inp=document.createElement("input");inp.type="text";inp.placeholder="Комментарий…";
+    const sb=document.createElement("button");sb.className="ib";sb.textContent="➤";
+    const go=()=>{const v=inp.value.trim();if(v){base.child(`posts/${id}/comments`).push({uid:me,text:v,t:Date.now()});inp.value=""}};
+    sb.onclick=go;inp.onkeydown=e=>{if(e.key==="Enter")go()};ci.append(inp,sb);c.append(ci);
+    el.append(c);
+  });
+}
+
+/* чат */
+function drawChat(){
+  const el=$("msgs"),stick=el.scrollHeight-el.scrollTop-el.clientHeight<120;
+  el.innerHTML="";
+  const ids=Object.keys(chat).sort((a,b)=>chat[a].t-chat[b].t);
+  if(!ids.length){el.innerHTML='<div class="empty"><b>💌</b>Напишите первое сообщение!</div>';return}
+  ids.forEach(id=>{
+    const m=chat[id],r=document.createElement("div");r.className="row"+(m.uid===me?" me":"");
+    if(m.uid!==me)r.append(av(profiles[m.uid],"sm"));
+    const b=document.createElement("div");b.className="bub";b.textContent=m.text;
+    const t=document.createElement("time");t.textContent=hm(m.t);b.append(t);r.append(b);el.append(r);
+  });
+  if(stick||!el._i){el.scrollTop=el.scrollHeight;el._i=1}
+}
+function send(){
+  const v=$("mt").value.trim();if(!v)return;
+  base.child("chat").push({uid:me,text:v.slice(0,2000),t:Date.now()});
+  $("mt").value="";$("mt").style.height="";
+}
+$("msend").onclick=send;
+$("mt").oninput=e=>{e.target.style.height="auto";e.target.style.height=Math.min(e.target.scrollHeight,110)+"px"};
+$("mt").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey&&matchMedia("(hover:hover)").matches){e.preventDefault();send()}};
+
+/* профиль */
+function drawProf(){
+  const a=$("pav");a.style.backgroundImage=pdraft.photo?`url(${pdraft.photo})`:grad(pdraft.hue||340);a.textContent=pdraft.photo?"":pdraft.emoji;
+  if(document.activeElement.tagName!=="INPUT"){$("pname").value=pdraft.name||"";$("pbio").value=pdraft.bio||""}
+  const g=$("peg");g.innerHTML="";EM.forEach(e=>{const b=document.createElement("button");b.textContent=e;if(e===pdraft.emoji&&!pdraft.photo)b.className="sel";b.onclick=()=>{pdraft.emoji=e;pdraft.photo=null;drawProf()};g.append(b)});
+  const c=$("pcg");c.innerHTML="";HU.forEach(h=>{const b=document.createElement("button");b.style.background=grad(h);if(h===pdraft.hue)b.className="sel";b.onclick=()=>{pdraft.hue=h;drawProf()};c.append(b)});
+}
+$("pfb").onclick=()=>$("pavf").click();
+$("pavf").onchange=e=>{const f=e.target.files[0];if(f)squareFace(f,d=>{pdraft.photo=d;drawProf()})};
+$("psave").onclick=async()=>{
+  pdraft.name=$("pname").value.trim()||pdraft.name;pdraft.bio=$("pbio").value.trim();
+  await base.child("profiles/"+me).set({name:pdraft.name,emoji:pdraft.emoji||EM[0],hue:pdraft.hue||340,photo:pdraft.photo||null,bio:pdraft.bio});
+  alert("Профиль сохранён 💗");
+};
+setInterval(()=>{if(!$("feed").contains(document.activeElement))drawFeed()},60000);
+</script>
+</body>
+</html>
